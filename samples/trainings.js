@@ -1,3 +1,6 @@
+/*jshint esversion: 6 */
+/*jshint browser: true */
+
 let base = {
 	students: [
 		{ id: 0, fio: "Ivan",	grade: "III"},
@@ -34,3 +37,6 @@ let base = {
 
 let db = new TinyDB(base);
 console.dir( db.getFromRelation("events", "theme", 5) );
+
+//db.__relations
+db.del("students");
