@@ -8,9 +8,9 @@ class TinyDB {
 
 	getFromRelation (tableName, fieldName, key)  {
 		this.throwIfWrongRelation(tableName, fieldName);
-		let many = this.base.__relations[tableName][fieldName].to === "many";
+		let rel = this.base.__relations[tableName][fieldName];
 
-		return this.get(tableName, fieldName, key, many);
+		return this.get(rel.toTable, rel.byField, key, rel.to === "many");
 	}
 
 	get(tableName, fieldName, key, all = false) {
