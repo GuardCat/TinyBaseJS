@@ -1,5 +1,6 @@
 # TinyBaseJS
 Simple sinchronous database logic for browser.
+It's a more simple version DB than [GCBase](https://github.com/GuardCat/GCBaseJS).
 
 # Описание
 TinyBaseJS это логика, соглашения, и несколько простых функций. Иногда требуется работать с небольшим структурированным объемом данных в браузере (до 1 млн строк в таблице), но хочется иметь связи между объектами для экономии места, траффика и времени.
