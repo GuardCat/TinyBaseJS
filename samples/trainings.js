@@ -38,5 +38,5 @@ let base = {
 let db = new TinyDB(base);
 console.dir( db.getFromRelation("events", "theme", 5) );
 
-//db.__relations
+db.delRel('events', "students");
 db.del("students");

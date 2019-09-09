@@ -14,7 +14,7 @@ class TinyDB {
 	}
 
 	getFromRelation (tableName, fieldName, key)  {
-		this.throwIfWrongRelation(tableName, fieldName);
+		this.throwIfNoRelation(tableName, fieldName);
 		let rel = this.base.__relations[tableName][fieldName];
 
 		return this.get(rel.toTable, rel.byField, key, rel.to === "many");
@@ -23,7 +23,7 @@ class TinyDB {
 	get(tableName, fieldName, key, all = false) {
 		if (key instanceof Array) return key.map( i => this.get(tableName, fieldName, i) );
 		let fn = all ? "filter" : "find";
-
+		
 		return key instanceof Function ?
 			this.base[tableName][fn]( entry => key(entry) )
 		:
@@ -31,8 +31,25 @@ class TinyDB {
 		;
 	}
 	
+	delRel(tableName, fieldName) {
+		let rel = this.base.__relations[tableName];
+		if ( !rel || !rel[fieldName] ) return false;
+		return delete rel[fieldName];
+	}
+	
+	addRel(tableName, fieldName, relationOBJ) {
+		if (!this.base.__relations) this.base.__relations = {};
+		let	rel = this.base.__relations;
+		if (!rel[tableName]) rel[tableName] = {};
+		if (rel[tableName][fieldName]) throw new Error(`The relation exists: ${rel[fieldName]}. Delete it first and try again or use chRel method.`);
+		
+		rel[tableName][fieldName] = relationOBJ;
+		
+		return rel[tableName][fieldName];
+	}
+	
 	del(tableName, fieldName, key) {
-		if (key instanceof Array) return key.map( i => this.del( {tableName: tableName, fieldName: fieldName, key: i} ) );
+		if (key instanceof Array) return key.map( i => this.del(tableName, fieldName, i) );
 		
 		if (!fieldName) {
 			this.throwIfExistsRefsToTable(tableName);
@@ -48,10 +65,13 @@ class TinyDB {
 		return this;		
 	}
 	
+	throwIfWrongRelation(relObj) {
+		
+	}
 	
-	throwIfWrongRelation(tableName, fieldName) {
-		let base = this.base;
-		if ( !(base.__relations && base.__relations[tableName] && base.__relations[tableName][fieldName]) ) {
+	throwIfNoRelation(tableName, fieldName) {
+		let rel = this.base.__relations;
+		if ( !(rel && rel[tableName] && rel[tableName][fieldName]) ) {
 			throw new Error(`There is not relation's description in base.__relations. Table: ${tableName}, field: ${fieldName}`);
 		}
 	}
