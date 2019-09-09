@@ -31,6 +31,18 @@ let base = {
 			"students":	{from: "many",	to: "one",	toTable: "students",	byField: "id"},
 			"theme":	{from: "one",	to: "one",	toTable: "trainings",	byField: "id"}
 		}
+	},
+
+	__fields: {
+		events: {
+			key: {id: 4},
+			simple: ["date"],
+			links: {
+				"theme": {},
+				"students": {}
+			}
+		},
+		trainings: {id: 6, name: ""},
 	}
 };
 
