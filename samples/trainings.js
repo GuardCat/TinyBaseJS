@@ -26,6 +26,12 @@ let base = {
 		{ id: 3, date: "2019-06-01", theme: 5, students: [0, 3, 2] }
 	],
 
+	__structure : {
+		links: [
+			{table: "events", field: "students", toTable: "students", byField: "id", from: "many", to: "one"},
+			{table: "events", field: "theme", toTable: "trainings", byField: "id", from: "one", to: "one"},
+		]
+	},
 	__relations: {
 		"events": {
 			"students":	{from: "many",	to: "one",	toTable: "students",	byField: "id"},
