@@ -27,15 +27,11 @@ let base = {
 	],
 
 	__structure : {
-		links: [
-			{table: "events", field: "students", toTable: "students", byField: "id", from: "many", to: "one"},
-			{table: "events", field: "theme", toTable: "trainings", byField: "id", from: "one", to: "one"},
-		]
-	},
-	__relations: {
-		"events": {
-			"students":	{from: "many",	to: "one",	toTable: "students",	byField: "id"},
-			"theme":	{from: "one",	to: "one",	toTable: "trainings",	byField: "id"}
+		events: {
+			links: {
+				students: {toTable: "students", byField: "id", from: "many", to: "one"},
+				theme: {toTable: "trainings", byField: "id", from: "one", to: "one"}
+			}
 		}
 	}
 };
