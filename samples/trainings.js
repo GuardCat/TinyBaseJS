@@ -27,14 +27,14 @@ let base = {
 	],
 
 	__structure : {
-		events: {
-			links: {
-				students: {toTable: "students", byField: "id", from: "many", to: "one"},
-				theme: {toTable: "trainings", byField: "id", from: "one", to: "one"}
-			}
-		}
+		events: [
+			{name: "id", type: "autokey"},
+			{name: "date", type: "date"},
+			{name: "students", type: "link", toTable: "students", byField: "id", from: "many", to: "one"},
+			{name: "theme", type: "link", toTable: "trainings", byField: "id", from: "one", to: "one"},
+		]
 	}
-};
+};,
 
 
 let db = new TinyDB(base);

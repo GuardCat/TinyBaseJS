@@ -105,3 +105,4 @@ class TinyDB {
 * - add
 * - linkToValue
 * - linksToValues
+* - __generateLinksObject
