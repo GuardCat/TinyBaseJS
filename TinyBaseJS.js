@@ -4,49 +4,35 @@
 /**
  * @class
  * @classdesc simple Database operator for existance DB in browser. Data format see in README.MD
- * @param base Object — formatted object.
+ * @param base Object — formatted object with __structure entry.
  */
 
 
 class TinyDB {
 	constructor(base) {
-	  this.base = base;
+		this.base = base;
+		this.__structure = base.__structure;
 	}
 
-	getFromRelation (tableName, fieldName, key)  {
-		this.throwIfNoRelation(tableName, fieldName);
-		let rel = this.base.__relations[tableName][fieldName];
-
-		return this.get(rel.toTable, rel.byField, key, rel.to === "many");
-	}
-
-	get(tableName, fieldName, key, all = false) {
-		if (key instanceof Array) return key.map( i => this.get(tableName, fieldName, i) );
-		let fn = all ? "filter" : "find";
-
-		return key instanceof Function ?
-			this.base[tableName][fn]( entry => key(entry) )
-		:
-			this.base[tableName][fn]( entry => entry[fieldName] === key )
+	getLink (tableName, fieldName, key)  {
+		if (key instanceof Array) return key.map( i => this.getLink(tableName, fieldName, i) );
+		
+		this.throwIfNoLink(tableName, fieldName);
+		
+		let
+			link = this.__structure[tableName].find( i => i.name === fieldName ),
+			searcher = link.to === "many" ? "filter" : "find"
 		;
+
+		return this.base[link.toTable][searcher]( i => key === i[link.byField] );
 	}
 
-	delRel(tableName, fieldName) {
+/*	delRel(tableName, fieldName) {
 		let rel = this.base.__relations[tableName];
 		if ( !rel || !rel[fieldName] ) return false;
 		return delete rel[fieldName];
 	}
 
-	addRel(tableName, fieldName, relationOBJ) {
-		if (!this.base.__relations) this.base.__relations = {};
-		let	rel = this.base.__relations;
-		if (!rel[tableName]) rel[tableName] = {};
-		if (rel[tableName][fieldName]) throw new Error(`The relation exists: ${rel[fieldName]}. Delete it first and try again or use chRel method.`);
-
-		rel[tableName][fieldName] = relationOBJ;
-
-		return rel[tableName][fieldName];
-	}
 
 	del(tableName, fieldName, key) {
 		if (key instanceof Array) return key.map( i => this.del(tableName, fieldName, i) );
@@ -63,33 +49,29 @@ class TinyDB {
 		;
 
 		return this;
+	}*/
+
+
+	throwIfNoTable(tableName) {
+		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);	
 	}
-
-	throwIfWrongRelation(relObj) {
-
+	
+	throwIfNoField(tableName, fieldName) {
+		this.throwIfNoTable(tableName);
+		if ( !this.__structure[tableName].find(i => i.name === fieldName) ) throw new ReferenceError(`There is not field "${fieldName}" in table "${tableName}".`);	
 	}
-
-	throwIfNoRelation(tableName, fieldName) {
-		let rel = this.base.__relations;
-		if ( !(rel && rel[tableName] && rel[tableName][fieldName]) ) {
-			throw new Error(`There is not relation's description in base.__relations. Table: ${tableName}, field: ${fieldName}`);
-		}
+	
+	throwIfNoFieldType(tableName, fieldName) {
+		this.throwIfNoTable(tableName);
+		this.throwIfNoField(tableName, fieldName);
+		if ( !this.__structure[tableName].find(i => i.name === fieldName).type ) throw new Error(`There is not "type" field for field "${fieldName}" in table "${tableName}". It's need to fix it.`);	
 	}
-
-	throwIfExistsRefsToTable(tableName) {
-		let rel = this.base.__relations;
-		if ( !(rel) ) return false;
-
-		for (let table in rel) {
-			if ( !(rel.hasOwnProperty(table)) || table === tableName ) continue;
-
-			for (let field in rel[table]) {
-				if ( !(rel[table].hasOwnProperty(field) ) ) continue;
-				if (rel[table][field].toTable === tableName) throw new Error(`Operation not permitted. There is a relation to ${tableName}, in table ${table}: ${JSON.stringify(rel[table][field])}. Delete relation first and try again.`);
-			}
-
-		}
-
+	
+	throwIfNoLink(tableName, fieldName) {
+		this.throwIfNoTable(tableName);
+		this.throwIfNoField(tableName, fieldName);
+		this.throwIfNoFieldType(tableName, fieldName);
+		if ( this.__structure[tableName].find(i => i.name === fieldName).type !== "link" ) throw new TypeError(`Field "${fieldName}" in table "${tableName}" is not link.`);
 	}
 
 }
@@ -106,3 +88,4 @@ class TinyDB {
 * - linkToValue
 * - linksToValues
 * - __generateLinksObject
+**/

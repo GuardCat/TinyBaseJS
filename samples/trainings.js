@@ -28,17 +28,27 @@ let base = {
 
 	__structure : {
 		events: [
-			{name: "id", type: "autokey"},
-			{name: "date", type: "date"},
-			{name: "students", type: "link", toTable: "students", byField: "id", from: "many", to: "one"},
-			{name: "theme", type: "link", toTable: "trainings", byField: "id", from: "one", to: "one"},
+			{name: "id",		type: "auto"},
+			{name: "date",		type: "date"},
+			{name: "students",	type: "link",	toTable: "students", byField: "id", from: "many", to: "one"},
+			{name: "theme",		type: "link",	toTable: "trainings", byField: "id", from: "one", to: "one"}
+		],
+		
+		trainings: [
+			{name: "id",	type: "auto"},
+			{name: "name",	type: "text"}
+			
+		],
+		
+		students: [
+			{name: "id",	type: "auto"},
+			{name: "fio",	type: "text"},
+			{name: "grade", type: "text"}
 		]
 	}
-};,
+};
 
 
 let db = new TinyDB(base);
-console.dir( db.getFromRelation("events", "theme", 5) );
-
-db.delRel('events', "students");
-db.del("students");
+console.log( db.getLink("events", "students", 3) );
+console.log( db.getLink("events", "students", db.base.events[0].students) );
