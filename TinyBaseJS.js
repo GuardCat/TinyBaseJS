@@ -13,16 +13,19 @@ class TinyDB {
 		this.__structure = base.__structure;
 	}
 
-	getLinkValue (tableName, fieldName, key)  {
-		if (key instanceof Array) return key.map( i => this.getLinkValue(tableName, fieldName, i) );
+	getLinkValue (tableName, fieldName, key, getFields = false)  {
+		if (key instanceof Array) return key.map( key => this.getLinkValue(tableName, fieldName, key, getFields) );
 		this.throwIfWrongLink(tableName, fieldName);
 
 		let
 			link = this.getStruct(tableName, fieldName),
-			searcher = link.to === "many" ? "filter" : "find"
+			finder = link.to === "many" ? "filter" : "find",
+			result = this.base[link.toTable][finder](i => key === i[link.byField])
 		;
 
-		return this.base[link.toTable][searcher]( i => key === i[link.byField] );
+		if (!getFields) return result;
+		if (getFields) return getFields.reduce( (a, b) => {a[b] = result[b]; return a}, { } );
+		return result[link.valField];
 	}
 
 	getStruct(tableName, fieldName) {
@@ -35,14 +38,18 @@ class TinyDB {
 	* @param table an Array of Objects in TinyBaseJs format.
 	* @param tableName a string, that contains name of the table in the base with the same rules links.
 	*/
-	mergeLinks(table, tableName) {
+	mergeLinks(table, tableName, wholeEntry = false) {
 		return  table.map(
 			row => {
+				let result = {};
 				for (let fieldName in row) {
 					if ( !row.hasOwnProperty(fieldName) ) continue;
 					this.throwIfNoField(tableName, fieldName);
-					if ( this.getStruct(tableName, fieldName).type === "link" ) row[fieldName] = this.getLinkValue(tableName, fieldName, row[fieldName]);
+					
+					result[fieldName] = this.getStruct(tableName, fieldName).type === "link" ? this.getLinkValue(tableName, fieldName, row[fieldName], wholeEntry) : row[fieldName];
 				}
+
+				return Object.assign({ }, result);
 			}
 		);
 	}

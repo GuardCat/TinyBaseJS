@@ -1,5 +1,4 @@
-/*jshint esversion: 6 */
-/*jshint browser: true */
+/*jshint camelcase: true, esnext: true, browser: true, browserify: true*/
 
 let base = {
 	students: [
@@ -50,5 +49,6 @@ let base = {
 
 
 let db = new TinyDB(base);
-db.getLinkValue("events", "students", 3);
+console.log( db.getLinkValue("events", "students", 3, ["fio", "grade"]) );
+//console.log( db.mergeLinks( db.base.events, "events" ) );
 //console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
