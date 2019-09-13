@@ -33,13 +33,13 @@ let base = {
 			{name: "students",	type: "link",	toTable: "students", byField: "id", from: "many", to: "one"},
 			{name: "theme",		type: "link",	toTable: "trainings", byField: "id", from: "one", to: "one"}
 		],
-		
+
 		trainings: [
 			{name: "id",	type: "auto"},
 			{name: "name",	type: "text"}
-			
+
 		],
-		
+
 		students: [
 			{name: "id",	type: "auto"},
 			{name: "fio",	type: "text"},
@@ -50,5 +50,5 @@ let base = {
 
 
 let db = new TinyDB(base);
-console.log( db.getLink("events", "students", 3) );
-console.log( db.getLink("events", "students", db.base.events[0].students) );
+db.getLinkValue("events", "students", 3)
+//console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
