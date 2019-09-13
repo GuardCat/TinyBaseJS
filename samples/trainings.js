@@ -27,20 +27,20 @@ let base = {
 
 	__structure : {
 		events: [
-			{name: "id",		type: "auto"},
+			{name: "id",		type: "auto", value: 4},
 			{name: "date",		type: "date"},
 			{name: "students",	type: "link",	toTable: "students", byField: "id", from: "many", to: "one"},
 			{name: "theme",		type: "link",	toTable: "trainings", byField: "id", from: "one", to: "one"}
 		],
 
 		trainings: [
-			{name: "id",	type: "auto"},
+			{name: "id",	type: "auto", value: 6},
 			{name: "name",	type: "text"}
 
 		],
 
 		students: [
-			{name: "id",	type: "auto"},
+			{name: "id",	type: "auto", value: 5},
 			{name: "fio",	type: "text"},
 			{name: "grade", type: "text"}
 		]
