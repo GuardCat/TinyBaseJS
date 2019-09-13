@@ -1,5 +1,4 @@
-/*jshint esversion: 6 */
-/*jshint browser: true */
+/*jshint camelcase: true, esnext: true, browser: true, browserify: true*/
 
 /**
  * @class
@@ -17,7 +16,7 @@ class TinyDB {
 	getLinkValue (tableName, fieldName, key)  {
 		if (key instanceof Array) return key.map( i => this.getLinkValue(tableName, fieldName, i) );
 		this.throwIfWrongLink(tableName, fieldName);
-alert(2)
+
 		let
 			link = this.getStruct(tableName, fieldName),
 			searcher = link.to === "many" ? "filter" : "find"
@@ -50,37 +49,28 @@ alert(2)
 
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
-		console.warn(5);
 		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);
-		console.warn("after no table 5")
 	}
 
 	throwIfNoField(tableName, fieldName) {
-		console.warn(4);
 		this.throwIfNoTable(tableName);
 		if ( !this.__structure[tableName].find(i => i.name === fieldName) ) throw new ReferenceError(`There is not field "${fieldName}" in table "${tableName}".`);
-		console.warn("after no field 4")
 	}
 
 	throwIfNoFieldType(tableName, fieldName) {
-		console.warn(3);
 		this.throwIfNoField(tableName, fieldName);
 		if ( !this.__structure[tableName].find(i => i.name === fieldName).type ) throw new Error(`There is not "type" field for field "${fieldName}" in table "${tableName}". It's need to fix it.`);
-		console.warn("after no field 3")
 	}
 
 	throwIfNoLink(tableName, fieldName) {
-		console.warn(2);
 		this.throwIfNoFieldType(tableName, fieldName);
 		if ( this.__structure[tableName].find(i => i.name === fieldName).type !== "link" ) throw new TypeError(`Field "${fieldName}" in table "${tableName}" is not link.`);
-		console.warn("after no link 2")
 	}
 
 	throwIfWrongLink(tableName, fieldName, key) {
-		if (!confirm("Another lap?")) throw new Error();
 		this.throwIfNoLink(tableName, fieldName);
-		if( !this.getLinkValue(tableName, fieldName, key) )  throw new ReferenceError(`Value "${key}" doesn't exist in table linked to field "${fieldName}" in table ${tableName}`);
-		console.warn("after 1");
+		let link = this.getStruct(tableName, fieldName);
+		if( !this.base[link.toTable].some( i => i[fieldName] === key) ) throw new ReferenceError(`Value "${key}" doesn't exist in table linked to field "${fieldName}" in table ${tableName}`);
 	}
 
 }

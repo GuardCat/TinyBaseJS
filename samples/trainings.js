@@ -50,5 +50,5 @@ let base = {
 
 
 let db = new TinyDB(base);
-db.getLinkValue("events", "students", 3)
+db.getLinkValue("events", "students", 3);
 //console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
