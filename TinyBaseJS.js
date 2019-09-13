@@ -3,7 +3,7 @@
 /**
  * @class
  * @classdesc simple Database operator for existance DB in browser. Data format see in README.MD
- * @param base Object — formatted object with __structure entry.
+ * @param {Object} base — formatted object with __structure entry.
  */
 
 
@@ -13,6 +13,14 @@ class TinyDB {
 		this.__structure = base.__structure;
 	}
 
+	
+	/**
+ 	* @description getLinkValue method Возвращает значение по полю со ссылкой и его значению
+	* @param {string} tableName имя таблицы, для которой будем искать ссылку
+	* @param {string} fieldName имя поля в таблице, содержащее ключи для ссылки
+	* @param {string/integer | array of strings/integers} Ключ или массив ключей, по которым будут возвращены значения.
+	* @param {array | boolean} массив полей, которые возвращаются из целевой таблицы. Если отсутствует, возвращается вся запись.
+ 	*/
 	getLinkValue (tableName, fieldName, key, getFields = false)  {
 		if (key instanceof Array) return key.map( key => this.getLinkValue(tableName, fieldName, key, getFields) );
 		this.throwIfWrongLink(tableName, fieldName);
@@ -24,8 +32,9 @@ class TinyDB {
 		;
 
 		if (!getFields) return result;
-		if (getFields) return getFields.reduce( (a, b) => {a[b] = result[b]; return a}, { } );
-		return result[link.valField];
+		if ( !(getFields instanceof Array) ) throw new ReferenceError("getLinkValue: the getFields argument must be an array if it is present.");
+		if (getFields.length > 1) return getFields.reduce( (a, b) => { a[b] = result[b]; return a }, { } );
+		return result[getFields];
 	}
 
 	getStruct(tableName, fieldName) {
@@ -34,11 +43,13 @@ class TinyDB {
 	}
 
 	/**
-	* @desc it replaces links in table to values
+	* @description it replaces links in table to values
 	* @param table an Array of Objects in TinyBaseJs format.
 	* @param tableName a string, that contains name of the table in the base with the same rules links.
+	* @param {object | boolean} объект массивов полей, которые возвращаются из целевой таблицы. Ключи объекта — названия полей исходной таблицы
+	*   содержимое — массив имен полей целевой таблицы к передаче. Если параметр отсутствует, возвращается вся запись.
 	*/
-	mergeLinks(table, tableName, wholeEntry = false) {
+	mergeLinks(table, tableName, getFields = false) {
 		return  table.map(
 			row => {
 				let result = {};
@@ -46,7 +57,7 @@ class TinyDB {
 					if ( !row.hasOwnProperty(fieldName) ) continue;
 					this.throwIfNoField(tableName, fieldName);
 					
-					result[fieldName] = this.getStruct(tableName, fieldName).type === "link" ? this.getLinkValue(tableName, fieldName, row[fieldName], wholeEntry) : row[fieldName];
+					result[fieldName] = this.getStruct(tableName, fieldName).type === "link" ? this.getLinkValue(tableName, fieldName, row[fieldName], getFields[fieldName]) : row[fieldName];
 				}
 
 				return Object.assign({ }, result);
