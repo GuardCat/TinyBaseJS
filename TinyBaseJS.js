@@ -79,7 +79,7 @@ class TinyDB {
 			switch (fieldStruct.type) {
 				case "auto":
 					fieldStruct.value++;
-					break;		
+				break;		
 			} 
 		}
 	}
