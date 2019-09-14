@@ -25,7 +25,7 @@ class TinyDB {
 		if (key instanceof Array) return key.map( key => this.getLinkValue(tableName, fieldName, key, getFields) );
 		this.throwIfWrongLink(tableName, fieldName);
 
-		let
+		const
 			link = this.getStruct(tableName, fieldName),
 			finder = link.to === "many" ? "filter" : "find",
 			result = this.base[link.toTable][finder](i => key === i[link.byField])
@@ -33,7 +33,7 @@ class TinyDB {
 
 		if (!getFields) return result;
 		if ( !(getFields instanceof Array) ) throw new ReferenceError("getLinkValue: the getFields argument must be an array if it is present.");
-		if (getFields.length > 1) return getFields.reduce( (a, b) => { a[b] = result[b]; return a }, { } );
+		if (getFields.length > 1) return getFields.reduce( (a, b) => { a[b] = result[b]; return a; }, { } );
 		return result[getFields];
 	}
 
@@ -56,15 +56,34 @@ class TinyDB {
 				for (let fieldName in row) {
 					if ( !row.hasOwnProperty(fieldName) ) continue;
 					this.throwIfNoField(tableName, fieldName);
-					
 					result[fieldName] = this.getStruct(tableName, fieldName).type === "link" ? this.getLinkValue(tableName, fieldName, row[fieldName], getFields[fieldName]) : row[fieldName];
 				}
-
-				return Object.assign({ }, result);
+				return result;
 			}
 		);
 	}
 
+	addRow(tableName, row) {
+		if (row instanceof Array) return row.map( row => this.add(tableName, row) );
+		const
+			struct = this.__structure[tableName],
+			fieldNames = struct.map(field => field.name)			  
+		;
+		let fieldStruct;
+		
+		for (let fieldName in row) {
+			if ( !row.hasOwnProperty(fieldName) ) continue;
+			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field ${fieldName} in the table ${tableName}`);
+			
+			fieldStruct = struct.find(i => i.name === fieldName);
+			switch (fieldStruct.type) {
+				case "auto":
+					fieldStruct.value++;
+					break;		
+			} 
+		}
+	}
+	
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
 		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);
@@ -74,7 +93,6 @@ class TinyDB {
 		this.throwIfNoTable(tableName);
 		if ( !this.__structure[tableName].find(i => i.name === fieldName) ) throw new ReferenceError(`There is not field "${fieldName}" in table "${tableName}".`);
 	}
-
 	throwIfNoFieldType(tableName, fieldName) {
 		this.throwIfNoField(tableName, fieldName);
 		if ( !this.__structure[tableName].find(i => i.name === fieldName).type ) throw new Error(`There is not "type" field for field "${fieldName}" in table "${tableName}". It's need to fix it.`);
