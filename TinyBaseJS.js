@@ -67,22 +67,50 @@ class TinyDB {
 		if (row instanceof Array) return row.map( row => this.add(tableName, row) );
 		const
 			struct = this.__structure[tableName],
-			fieldNames = struct.map(field => field.name)			  
+			fieldNames = struct.map(field => field.name),
+			rowNames = Object.keys(row)
 		;
-		let fieldStruct;
+		if ( !fieldNames.every(field => rowNames.some(incomeRow => incomeRow === field)) ) throw new TypeError(`It is needs fields "${fieldNames}" for table "${tableName}", but given fields "${rowNames}"`);
+		
+		let fieldStruct, result = { };
 		
 		for (let fieldName in row) {
 			if ( !row.hasOwnProperty(fieldName) ) continue;
-			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field ${fieldName} in the table ${tableName}`);
+			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field "${fieldName}" in the table "${tableName}"`);
 			
 			fieldStruct = struct.find(i => i.name === fieldName);
 			switch (fieldStruct.type) {
 				case "auto":
-					fieldStruct.value++;
-				break;		
+					if (!fieldStruct.value) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
+					result[fieldName] = fieldStruct.value++;
+					break;
+				case "key":
+					result[fieldName] = row[fieldName];
+					if ( this.base[tableName].some(entry => entry[fieldName] === row[fieldName]) ) throw new TypeError(`"${fieldName}": "${row[fieldName]}". The key value already exists`);
+					break;
+				case "date":
+					result[fieldName] = Date.parse(row[fieldName]);
+					if ( isNaN(result[fieldName]) ) throw (`Wrong date format in field ${fieldName}: ${row[fieldName]}`);
+					break;
+				case "integer":
+					result[fieldName] = parseInt(row[fieldName]);
+					if ( isNaN(result[fieldName]) ) throw (`Wrong integer format in field ${fieldName}: ${row[fieldName]}`);
+					break;
+				case "float":
+					result[fieldName] = parseFloat(row[fieldName]);
+					if ( isNaN(result[fieldName]) ) throw (`Wrong float format in field ${fieldName}: ${row[fieldName]}`);
+					break;
+				case "link":
+					this.throwIfWrongLink(tableName, fieldName, row[fieldName]);
+					break;
+				default:
+					result[fieldName] = row[fieldName];
 			} 
 		}
+		this.base[tableName].push( result );
+		return true;
 	}
+	
 	
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
@@ -104,11 +132,20 @@ class TinyDB {
 	}
 
 	throwIfWrongLink(tableName, fieldName, key) {
+		if (key instanceof Array) key.forEach( key => this.throwIfWrongLink(tableName, fieldName, key) );
 		this.throwIfNoLink(tableName, fieldName);
 		let link = this.getStruct(tableName, fieldName);
 		if( !this.base[link.toTable].some( i => i[fieldName] === key) ) throw new ReferenceError(`Value "${key}" doesn't exist in table linked to field "${fieldName}" in table ${tableName}`);
 	}
 
+	/**
+ 	* @param {string} tableName name of table-recipient 
+ 	*/
+	throwIfWrongKey(tableName, fieldName, key) {
+		this.throwIfWrongLink(tableName, fieldName, key);
+		const values = this.getLinkValue(tableName, fieldName, key);
+		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`); 
+	}
 }
 
 /**

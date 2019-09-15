@@ -26,17 +26,26 @@ let base = {
 		{ id: 3, date: "2019-06-01", theme: 5, students: [0, 3, 2] }
 	],
 
-	__relations: {
-		"events": {
-			"students":	{from: "many",	to: "one",	toTable: "students",	byField: "id"},
-			"theme":	{from: "one",	to: "one",	toTable: "trainings",	byField: "id"}
-		}
+	__structure: {
+		"events": [
+			{name: "id", type: "auto", value: 4},
+			{name: "date", type: "date"},
+			{name: "theme", type: "link", from: "one",	to: "one",	toTable: "trainings",	byField: "id"},
+			{name: "students", type: "link", from: "many", to: "one",	toTable: "students",	byField: "id"}
+		],
+		
+		"students": [
+			{name: "id", type: "auto", value: 5},
+			{name: "fio", type: "text"},
+			{name: "grade", type: "text"}
+		],
+		
+		"trainings": [
+			{name: "id", type: "auto", value: 6},
+			{name: "name", type: "text"}
+		]
 	}
 };
 
 
 let db = new TinyDB(base);
-console.dir( db.getFromRelation("events", "theme", 5) );
-
-db.delRel('events', "students");
-db.del("students");
