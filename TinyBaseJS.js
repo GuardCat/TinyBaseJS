@@ -1,4 +1,4 @@
-/*jshint camelcase: true, esnext: true, browser: true, browserify: true*/
+/*jshint camelcase: true, browser: true, browserify: true*/
 
 /**
  * @class
@@ -13,7 +13,7 @@ class TinyDB {
 		this.__structure = base.__structure;
 	}
 
-	
+
 	/**
  	* @description getLinkValue method Возвращает значение по полю со ссылкой и его значению
 	* @param {string} tableName имя таблицы, для которой будем искать ссылку
@@ -35,7 +35,7 @@ class TinyDB {
 		if ( !(getFields instanceof Array) ) throw new ReferenceError("getLinkValue: the getFields argument must be an array if it is present.");
 		if (getFields.length > 1) return getFields.reduce( (a, b) => { a[b] = result[b]; return a; }, { } );
 
-		return result[getFields];
+		return result[ getFields[0] ];
 	}
 
 	getStruct(tableName, fieldName) {
@@ -73,13 +73,13 @@ class TinyDB {
 			rowNames = Object.keys(row)
 		;
 		if ( !fieldNames.every(field => rowNames.some(incomeRow => incomeRow === field)) ) throw new TypeError(`It is needs fields "${fieldNames}" for table "${tableName}", but given fields "${rowNames}"`);
-		
+
 		let fieldStruct, result = { };
-		
+
 		for (let fieldName in row) {
 			if ( !row.hasOwnProperty(fieldName) ) continue;
 			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field "${fieldName}" in the table "${tableName}"`);
-			
+
 			fieldStruct = struct.find(i => i.name === fieldName);
 			switch (fieldStruct.type) {
 				case "auto":
@@ -107,14 +107,14 @@ class TinyDB {
 					break;
 				default:
 					result[fieldName] = row[fieldName];
-			} 
+			}
 		}
 		if (!this.base[tableName]) this.base[tableName] = [ ];
 		this.base[tableName].push( result );
 		return true;
 	}
-	
-	
+
+
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
 		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);
@@ -142,12 +142,12 @@ class TinyDB {
 	}
 
 	/**
- 	* @param {string} tableName name of table-recipient 
+ 	* @param {string} tableName name of table-recipient
  	*/
 	throwIfWrongKey(tableName, fieldName, key) {
 		this.throwIfWrongLink(tableName, fieldName, key);
 		const values = this.getLinkValue(tableName, fieldName, key);
-		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`); 
+		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`);
 	}
 }
 
