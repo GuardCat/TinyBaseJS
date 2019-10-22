@@ -109,6 +109,7 @@ class TinyDB {
 					result[fieldName] = row[fieldName];
 			} 
 		}
+		if (!this.base[tableName]) this.base[tableName] = [ ];
 		this.base[tableName].push( result );
 		return true;
 	}
@@ -148,7 +149,6 @@ class TinyDB {
 		const values = this.getLinkValue(tableName, fieldName, key);
 		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`); 
 	}
->>>>>>> 7279bb24776516c53191ff2ef65b0beb918e5bc2
 }
 
 /**
