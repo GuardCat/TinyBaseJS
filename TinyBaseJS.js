@@ -1,5 +1,6 @@
 /*jshint camelcase: true, esnext: true, loopfunc: true, browser: true, browserify: true*/
 
+
 /**
  * @class
  * @classdesc simple Database operator for existance DB in browser. Data format see in README.MD
@@ -13,7 +14,7 @@ class TinyDB {
 		this.__structure = base.__structure;
 	}
 
-	
+
 	/**
  	* @description getLinkValue method Возвращает значение по полю со ссылкой и его значению
 	* @param {string} tableName имя таблицы, для которой будем искать ссылку
@@ -35,7 +36,7 @@ class TinyDB {
 		if ( !(getFields instanceof Array) ) throw new ReferenceError("getLinkValue: the getFields argument must be an array if it is present.");
 		if (getFields.length > 1) return getFields.reduce( (a, b) => { a[b] = result[b]; return a; }, { } );
 
-		return result[getFields];
+		return result[ getFields[0] ];
 	}
 
 	/**
@@ -67,6 +68,7 @@ class TinyDB {
 			rowNames	= Object.keys(row),
 			result		= { }
 		;
+
 		let fieldStruct;
 		
 		if ( !fieldNames.every(field => rowNames.some(incomeRow => incomeRow === field)) ) throw new TypeError(`It is needs fields "${JSON.stringify(fieldNames)}" for table "${tableName}", but given fields "${JSON.stringify(rowNames)}"`);
@@ -136,7 +138,7 @@ class TinyDB {
 		let table, field;
 		
 		for (let tableName in this.__structure) {
-			table = this.__structure[tableName]
+			table = this.__structure[tableName];
 			
 			for (let fieldName in table) {
 				field = table[fieldName];
@@ -148,6 +150,7 @@ class TinyDB {
 		this.__linksMirror = linksMirror;
 	}
 	
+
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
 		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);
@@ -174,10 +177,14 @@ class TinyDB {
 		if( !this.base[link.toTable].some( i => i[fieldName] === key) ) throw new ReferenceError(`Value "${key}" doesn't exist in table linked to field "${fieldName}" in table ${tableName}`);
 	}
 
+
+	/**
+ 	* @param {string} tableName name of table-recipient
+ 	*/
 	throwIfWrongKey(tableName, fieldName, key) {
 		this.throwIfWrongLink(tableName, fieldName, key);
 		const values = this.getLinkValue(tableName, fieldName, key);
-		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`); 
+		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`);
 	}
 	
 	throwIfValueExists(tableName, fieldName, value) {
