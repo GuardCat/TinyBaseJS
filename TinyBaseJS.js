@@ -1,4 +1,4 @@
-/*jshint camelcase: true, esnext: true, loopfunc: true, browser: true, browserify: true*/
+/*jshint camelcase: true, esversion: 6, loopfunc: true, browser: true, browserify: true*/
 
 
 /**
@@ -12,6 +12,7 @@ class TinyDB {
 	constructor(base = { __structure: {} }) {
 		this.base = base;
 		this.__structure = base.__structure;
+		this.__generateLinksMirror( );
 	}
 
 
@@ -70,13 +71,13 @@ class TinyDB {
 		;
 
 		let fieldStruct;
-		
+
 		if ( !fieldNames.every(field => rowNames.some(incomeRow => incomeRow === field)) ) throw new TypeError(`It is needs fields "${JSON.stringify(fieldNames)}" for table "${tableName}", but given fields "${JSON.stringify(rowNames)}"`);
-		
+
 		for (let fieldName in row) {
 			if ( !row.hasOwnProperty(fieldName) ) continue;
 			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field "${fieldName}" in the table "${tableName}"`);
-			
+
 			fieldStruct = this.getStruct(tableName, fieldName);
 			switch (fieldStruct.type) {
 				case "auto":
@@ -108,48 +109,48 @@ class TinyDB {
 				default:
 					result[fieldName] = row[fieldName];
 			}
-			
+
 			if (fieldStruct.unique) this.throwIfValueExists(tableName, fieldName, result[fieldName]);
 		}
 		if (!this.base[tableName]) this.base[tableName] = [ ];
 		this.base[tableName].push( result );
 		return true;
 	}
-	
+
 	delRow(tableName, fn, all) {
 		const
 			table = this.base[tableName],
 			tableStruct = this.__structure[tableName]
 		;
-		
+
 		if (!all) {
-			
+
 			//return table.splice( table.findIndex(fn)
 		}
 	}
-	
+
 	getStruct(tableName, fieldName) {
 		this.throwIfNoField(tableName, fieldName);
 		return this.__structure[tableName][fieldName];
 	}
-	
+
 	__generateLinksMirror( ) {
-		const linksMirror = { }, tableNames = Object.keys(this.__structure);
+		const linksMirror = { };
 		let table, field;
-		
+
 		for (let tableName in this.__structure) {
 			table = this.__structure[tableName];
-			
+
 			for (let fieldName in table) {
 				field = table[fieldName];
 				if (field.type !== "link") continue;
 				linksMirror[field.toTable] = { table: tableName, field: fieldName, from: field.from, to: field.to };
 			}
-			
+
 		}
 		this.__linksMirror = linksMirror;
 	}
-	
+
 
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
@@ -186,14 +187,14 @@ class TinyDB {
 		const values = this.getLinkValue(tableName, fieldName, key);
 		if ( !values || ((values instanceof Array) && !values.length) ) throw new TypeError(`Given wrong key "${key}" in field "${fieldName}": no needed entries in target table.`);
 	}
-	
+
 	throwIfValueExists(tableName, fieldName, value) {
 		if ( this.base[tableName].some(entry => entry[fieldName] === value) ) throw new TypeError(`"${fieldName}": "${value}". The key/unique value exists in table "${tableName}".`);
 	}
-			
+
 	throwIfValueUsedInLink(tableName, row) {
-						
-		
+
+
 	}
 }
 
