@@ -25,7 +25,6 @@ let base = {
 		{ id: 3, date: "2019-06-01", theme: 5, students: [0, 3, 2] }
 	],
 
-<<<<<<< HEAD
 	__structure : {
 		events: [
 			{name: "id",		type: "auto", value: 4},
@@ -44,34 +43,14 @@ let base = {
 			{name: "id",	type: "auto", value: 5},
 			{name: "fio",	type: "text"},
 			{name: "grade", type: "text"}
-=======
-	__structure: {
-		"events": [
-			{name: "id", type: "auto", value: 4},
-			{name: "date", type: "date"},
-			{name: "theme", type: "link", from: "one",	to: "one",	toTable: "trainings",	byField: "id"},
-			{name: "students", type: "link", from: "many", to: "one",	toTable: "students",	byField: "id"}
-		],
-		
-		"students": [
-			{name: "id", type: "auto", value: 5},
-			{name: "fio", type: "text"},
-			{name: "grade", type: "text"}
-		],
-		
-		"trainings": [
-			{name: "id", type: "auto", value: 6},
-			{name: "name", type: "text"}
->>>>>>> 7279bb24776516c53191ff2ef65b0beb918e5bc2
+
 		]
 	}
 };
 
 
 let db = new TinyDB(base);
-<<<<<<< HEAD
 //console.log( db.getLinkValue("events", "students", 3, ["fio", "grade"]) );
 console.log( db.mergeLinks( db.base.events, "events", {students: ["id", "fio"], theme: ["name"]} ) );
 //console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
-=======
->>>>>>> 7279bb24776516c53191ff2ef65b0beb918e5bc2
+

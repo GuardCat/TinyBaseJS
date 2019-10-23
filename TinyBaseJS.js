@@ -105,6 +105,9 @@ class TinyDB {
 				case "link":
 					this.throwIfWrongLink(tableName, fieldName, row[fieldName]);
 					break;
+				case "boolean":
+					result[fieldName] = !!result[fieldName] ;
+					break;
 				default:
 					result[fieldName] = row[fieldName];
 			} 
