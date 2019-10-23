@@ -1,4 +1,4 @@
-/*jshint camelcase: true, esnext: true, browser: true, browserify: true*/
+/*jshint camelcase: true, esnext: true, loopfunc: true, browser: true, browserify: true*/
 
 /**
  * @class
