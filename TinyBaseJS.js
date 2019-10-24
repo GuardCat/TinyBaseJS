@@ -82,7 +82,7 @@ class TinyDB {
 			if (fieldStruct.unique || fieldStruct.type === "key") this.throwIfValueExists(tableName, fieldName, row[fieldName]);
 			switch (fieldStruct.type) {
 				case "auto":
-					if (!fieldStruct.value) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
+					if (!"value" in fieldStruct) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
 					result[fieldName] = fieldStruct.value++;
 					break;
 				case "key":
