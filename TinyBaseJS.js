@@ -6,8 +6,6 @@
  * @classdesc simple Database operator for existance DB in browser. Data format see in README.MD
  * @param {Object} base — formatted object with __structure entry.
  */
-
-
 class TinyDB {
 	constructor(base = { __structure: {} }) {
 		this.base = base;
@@ -79,13 +77,14 @@ class TinyDB {
 			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field "${fieldName}" in the table "${tableName}"`);
 
 			fieldStruct = this.getStruct(tableName, fieldName);
+			
+			if (fieldStruct.unique || fieldStruct.type === "key") this.throwIfValueExists(tableName, fieldName, result[fieldName]);
 			switch (fieldStruct.type) {
 				case "auto":
 					if (!fieldStruct.value) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
 					result[fieldName] = fieldStruct.value++;
 					break;
 				case "key":
-					this.throwIfValueExists(tableName, fieldName, row[fieldName]);
 					result[fieldName] = row[fieldName];
 					break;
 				case "date":
@@ -110,7 +109,6 @@ class TinyDB {
 					result[fieldName] = row[fieldName];
 			}
 
-			if (fieldStruct.unique) this.throwIfValueExists(tableName, fieldName, result[fieldName]);
 		}
 		if (!this.base[tableName]) this.base[tableName] = [ ];
 		this.base[tableName].push( result );
@@ -174,6 +172,14 @@ class TinyDB {
 		this.linksMirror = linksMirror;
 	}
 
+	/**
+	* @description возвращает true, если во второй переданной таблице есть значение из первой. Ориентируется по переданным именам ключей.
+ 	*/
+	checkArraysValues(arr1, arr2, key1, key2) {	
+		return arr1.some( el1 => {
+			return arr2.some( el2 => el2[key2] instanceof Array ? el2[key2].some( el3 => el3 === el1[key1] ) : el1[key1] === el2[key2] );
+		} );
+	}
 
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
@@ -201,10 +207,6 @@ class TinyDB {
 		if( !this.base[link.toTable].some( i => i[fieldName] === key) ) throw new ReferenceError(`Value "${key}" doesn't exist in table linked to field "${fieldName}" in table ${tableName}`);
 	}
 
-
-	/**
- 	* @param {string} tableName name of table-recipient
- 	*/
 	throwIfWrongKey(tableName, fieldName, key) {
 		this.throwIfWrongLink(tableName, fieldName, key);
 		const values = this.getLinkValue(tableName, fieldName, key);
@@ -215,14 +217,6 @@ class TinyDB {
 		if ( this.base[tableName].some(entry => entry[fieldName] === value) ) throw new TypeError(`"${fieldName}": "${value}". The key/unique value exists in table "${tableName}".`);
 	}
 
-	/**
-	* @description возвращает true, если во второй переданной таблице есть значение из первой. Ориентируется по переданным именам ключей.
- 	*/
-	checkArraysValues(arr1, arr2, key1, key2) {	
-		return arr1.some( el1 => {
-			return arr2.some( el2 => el2[key2] instanceof Array ? el2[key2].some( el3 => el3 === el1[key1] ) : el1[key1] === el2[key2] );
-		} );
-	}
 }
 
 /**
