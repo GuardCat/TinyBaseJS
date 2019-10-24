@@ -117,22 +117,37 @@ class TinyDB {
 		return true;
 	}
 
+	/**
+	 * @description удаляет строки из указанной таблицы, если на них нет ссылок из других записей.
+	 * @param {string} tableName 
+	 * @param {function} fn функция для удаления. Должна возвращать true для строк, которые нужно удалить.
+	 * @returns {number} количество удалённых строк
+	 * @throws если нет запрошенной таблицы
+	 * @throws если запрошенная таблица пуста
+	 * @throws если хотя бы на одну строку к удалению есть ссылка из записи в другой таблице
+	 */
 	delRow(tableName, fn) {
+		this.throwIfNoTable(tableName);
+		if (this.base[tableName].length === 0) throw new Error(`Deleting rows from an empty table is impossible. Table "${tableName}" is empty.`);
+		
 		const
 			table = this.base[tableName],
 			tableStruct = this.__structure[tableName],
-			oldLength = this.base[tableName].length
+			oldLength = this.base[tableName].length,
+			rowsToDelete = tableName in this.linksMirror ? this.base[tableName].filter( (el, num, arr) => !fn(el, num, arr) ) : false 
 		;
 		
-		
-		if (this.base[tableName].length === 0) throw new Error("Deleting rows from an empty table is impossible. Table ${tableName} is empty.");
-
-		if ( !(tableName in this.linksMirror) ) {
-			this.base[tableName] = 	this.base[tableName].filter( (el, num, arr) => !fn(el, num, arr) );
-			return oldLength - this.base[tableName].length;
+		if (rowsToDelete) { /* Если на таблицу есть ссылки и сформирован пул строк к удалению, проверим нет ли ссылок на кокретные значения */
+			if (rowsToDelete.length === 0) return 0; // Nothing to delete
+			
+			this.linksMirror[tableName].forEach( link => {
+				if ( this.checkArraysValues(rowsToDelete, this.base[link.table], link.fieldTo, link.fieldFrom) ) throw new Error(`Can't delete some rows from table "${tableName}" because them needed in some entries in table "${link.table}"`) ;
+			});
+			
 		}
-		
-		
+
+		this.base[tableName] = 	this.base[tableName].filter( (el, num, arr) => !fn(el, num, arr) );
+		return oldLength - this.base[tableName].length;
 	}
 
 	getStruct(tableName, fieldName) {
@@ -152,7 +167,7 @@ class TinyDB {
 				if (field.type !== "link") continue;
 				
 				if (!linksMirror[field.toTable]) linksMirror[field.toTable] = [ ];
-				linksMirror[field.toTable].push({ table: tableName, field: fieldName, from: field.from, to: field.to });
+				linksMirror[field.toTable].push({ table: tableName, fieldFrom: fieldName, fieldTo: field.byField });
 			}
 
 		}
@@ -162,7 +177,7 @@ class TinyDB {
 
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
-		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" here.`);
+		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" in database.`);
 	}
 
 	throwIfNoField(tableName, fieldName) {
@@ -200,9 +215,13 @@ class TinyDB {
 		if ( this.base[tableName].some(entry => entry[fieldName] === value) ) throw new TypeError(`"${fieldName}": "${value}". The key/unique value exists in table "${tableName}".`);
 	}
 
-	throwIfValueUsedInLink(tableName, row) {
-
-
+	/**
+	* @description возвращает true, если во второй переданной таблице есть значение из первой. Ориентируется по переданным именам ключей.
+ 	*/
+	checkArraysValues(arr1, arr2, key1, key2) {	
+		return arr1.some( el1 => {
+			return arr2.some( el2 => el2[key2] instanceof Array ? el2[key2].some( el3 => el3 === el1[key1] ) : el1[key1] === el2[key2] );
+		} );
 	}
 }
 
