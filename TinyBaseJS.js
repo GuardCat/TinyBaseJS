@@ -89,8 +89,8 @@ class TinyDB {
 					result[fieldName] = row[fieldName];
 					break;
 				case "date":
-					result[fieldName] = Date.parse(row[fieldName]);
-					if ( isNaN(result[fieldName]) ) throw (`Wrong date format in field ${fieldName}: ${row[fieldName]}`);
+					if ( isNaN( Date.parse(row[fieldName]) ) ) throw (`Wrong date format in field ${fieldName}: ${row[fieldName]}`);
+					result[fieldName] = row[fieldName];
 					break;
 				case "integer":
 					result[fieldName] = parseInt(row[fieldName]);
@@ -104,7 +104,7 @@ class TinyDB {
 					this.throwIfWrongLink(tableName, fieldName, row[fieldName]);
 					break;
 				case "boolean":
-					result[fieldName] = !!result[fieldName] ;
+					result[fieldName] = !!row[fieldName] ;
 					break;
 				default:
 					result[fieldName] = row[fieldName];
@@ -222,7 +222,7 @@ class TinyDB {
 
 /**
 * Методы:
-* - del. Чтобы исключить удаление строк и таблиц,
+* + del. Чтобы исключить удаление строк и таблиц,
 *   ломающее ссылки.
 * - change. Чтобы исключить смену значений на
 *   некорректные: id больше следующего, несуществующее
@@ -230,6 +230,6 @@ class TinyDB {
 * - renameField
 * - add
 * + getLinkValue
-* - __generateLinksObject
-* throwIfWrongBase чтобы проверять корректность входных данных при создании эксзепляра базы
+* + __generateLinksObject
+* throwIfWrongBase чтобы проверять корректность входных данных при создании экземпляра базы
 **/
