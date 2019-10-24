@@ -5,6 +5,7 @@
  * @class
  * @classdesc simple Database operator for existance DB in browser. Data format see in README.MD
  * @param {Object} base — formatted object with __structure entry.
+ * @version [[Description]] 0.5
  */
 class TinyDB {
 	constructor(base = { __structure: {} }) {
