@@ -117,16 +117,22 @@ class TinyDB {
 		return true;
 	}
 
-	delRow(tableName, fn, all) {
+	delRow(tableName, fn) {
 		const
 			table = this.base[tableName],
-			tableStruct = this.__structure[tableName]
+			tableStruct = this.__structure[tableName],
+			oldLength = this.base[tableName].length
 		;
+		
+		
+		if (this.base[tableName].length === 0) throw new Error("Deleting rows from an empty table is impossible. Table ${tableName} is empty.");
 
-		if (!all) {
-
-			//return table.splice( table.findIndex(fn)
+		if ( !(tableName in this.linksMirror) ) {
+			this.base[tableName] = 	this.base[tableName].filter( (el, num, arr) => !fn(el, num, arr) );
+			return oldLength - this.base[tableName].length;
 		}
+		
+		
 	}
 
 	getStruct(tableName, fieldName) {
@@ -144,11 +150,13 @@ class TinyDB {
 			for (let fieldName in table) {
 				field = table[fieldName];
 				if (field.type !== "link") continue;
-				linksMirror[field.toTable] = { table: tableName, field: fieldName, from: field.from, to: field.to };
+				
+				if (!linksMirror[field.toTable]) linksMirror[field.toTable] = [ ];
+				linksMirror[field.toTable].push({ table: tableName, field: fieldName, from: field.from, to: field.to });
 			}
 
 		}
-		this.__linksMirror = linksMirror;
+		this.linksMirror = linksMirror;
 	}
 
 
