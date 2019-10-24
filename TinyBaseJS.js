@@ -77,8 +77,8 @@ class TinyDB {
 			if ( !fieldNames.some(i => i === fieldName) ) throw new TypeError(`There is not field "${fieldName}" in the table "${tableName}"`);
 
 			fieldStruct = this.getStruct(tableName, fieldName);
-			
-			if (fieldStruct.unique || fieldStruct.type === "key") this.throwIfValueExists(tableName, fieldName, result[fieldName]);
+
+			if (fieldStruct.unique || fieldStruct.type === "key") this.throwIfValueExists(tableName, fieldName, row[fieldName]);
 			switch (fieldStruct.type) {
 				case "auto":
 					if (!fieldStruct.value) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
