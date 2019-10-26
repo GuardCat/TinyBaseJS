@@ -1,5 +1,4 @@
-/*jshint esversion: 6 */
-/*jshint browser: true */
+/*jshint camelcase: true, esnext: true, browser: true, browserify: true*/
 
 let base = {
 	students: [
@@ -26,26 +25,32 @@ let base = {
 		{ id: 3, date: "2019-06-01", theme: 5, students: [0, 3, 2] }
 	],
 
-	__structure: {
-		"events": [
-			{name: "id", type: "auto", value: 4},
-			{name: "date", type: "date"},
-			{name: "theme", type: "link", from: "one",	to: "one",	toTable: "trainings",	byField: "id"},
-			{name: "students", type: "link", from: "many", to: "one",	toTable: "students",	byField: "id"}
-		],
-		
-		"students": [
-			{name: "id", type: "auto", value: 5},
-			{name: "fio", type: "text"},
-			{name: "grade", type: "text"}
-		],
-		
-		"trainings": [
-			{name: "id", type: "auto", value: 6},
-			{name: "name", type: "text"}
-		]
+	__structure : {
+		events: {
+			"id":		{type: "auto", value: 4},
+			"date":		{type: "date"},
+			"students":	{type: "link",	toTable: "students", byField: "id", from: "many", to: "one"},
+			"theme":	{type: "link",	toTable: "trainings", byField: "id", from: "one", to: "one"}
+		},
+
+		trainings: {
+			"id":		{type: "auto", value: 6},
+			"name":		{type: "text"}
+
+		},
+
+		students: {
+			"id":		{type: "auto", value: 5},
+			"fio":		{type: "text"},
+			"grade":	{type: "text"}
+
+		}
 	}
 };
 
 
 let db = new TinyDB(base);
+//console.log( db.getLinkValue("events", "students", 3, ["fio", "grade"]) );
+console.log( db.mergeLinks( db.base.events, "events", {students: ["id", "fio"], theme: ["name"]} ) );
+//console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
+
