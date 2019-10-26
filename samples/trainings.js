@@ -51,6 +51,6 @@ let base = {
 
 let db = new TinyDB(base);
 //console.log( db.getLinkValue("events", "students", 3, ["fio", "grade"]) );
-console.log( db.mergeLinks( db.base.events, "events", {students: ["id", "fio"], theme: ["name"]} ) );
+//console.log( db.mergeLinks( db.base.events, "events", {students: ["id", "fio"], theme: ["name"]} ) );
 //console.log( db.getLinkValue("events", "students", db.base.events[0].students) );
-
+document.body.appendChild( db.generateSimpleTable(db.base.students, {id: "id", fio: "ФИО", grade: "курс"} ));

@@ -82,7 +82,7 @@ class TinyDB {
 			if (fieldStruct.unique || fieldStruct.type === "key") this.throwIfValueExists(tableName, fieldName, row[fieldName]);
 			switch (fieldStruct.type) {
 				case "auto":
-					if (!"value" in fieldStruct) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
+					if ( !("value" in fieldStruct) ) throw new Error(`value for ID does not exists field "${fieldName}" in the table "${tableName}"`);
 					result[fieldName] = fieldStruct.value++;
 					break;
 				case "key":
@@ -182,6 +182,36 @@ class TinyDB {
 		} );
 	}
 
+	/** Генерирует HTML-таблицы на основе массива объектов
+ 	*	@param {Array} table массив объектов — таблица.
+	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
+	* 	@returns {Object} HTML таблица
+ 	*/
+	generateSimpleTable(table, settings = { }) {
+		const keys = Object.keys(settings).length ? Object.keys(settings) : Object.keys(table[0]);
+		let result = `<tr>`, tableElement = document.createElement("table");
+
+		keys.forEach( key => {
+			result += `<th>${settings[key] ? settings[key] : key}</th>`;
+		} );		
+		
+		result += `</tr>`;
+		
+		for (let row in table) {
+			result += `<tr>`;
+			
+			keys.forEach( key => {
+				result += `<td>${table[row][key]}</td>`;
+			} );
+			
+			result += `</tr>`;
+		}
+	
+		tableElement.insertAdjacentHTML("afterbegin", result);
+		return tableElement;
+	}
+
+	
 	/* throwIf zone */
 	throwIfNoTable(tableName) {
 		if ( !this.__structure[tableName] ) throw new ReferenceError(`There is not table "${tableName}" in database.`);
@@ -218,6 +248,8 @@ class TinyDB {
 		if ( this.base[tableName].some(entry => entry[fieldName] === value) ) throw new TypeError(`"${fieldName}": "${value}". The key/unique value exists in table "${tableName}".`);
 	}
 
+	/* static methods */
+		
 }
 
 /**
