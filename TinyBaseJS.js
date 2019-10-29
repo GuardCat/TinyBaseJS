@@ -187,12 +187,14 @@ class TinyDB {
 	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
 	* 	@returns {Object} HTML таблица
  	*/
-	generateSimpleTable(table, settings = { }) {
-		const keys = Object.keys(settings).length ? Object.keys(settings) : Object.keys(table[0]);
+	generateTable(table, settings) {
+		const keys = settings ? Object.keys(settings) : Object.keys(table[0]);
 		let result = `<tr>`, tableElement = document.createElement("table");
-
+		
+		if (!keys || !keys.length) return tableElement;
+		
 		keys.forEach( key => {
-			result += `<th>${settings[key] ? settings[key] : key}</th>`;
+			result += `<th>${ (settings && settings[key]) ? settings[key] : key}</th>`;
 		} );		
 		
 		result += `</tr>`;
@@ -201,7 +203,11 @@ class TinyDB {
 			result += `<tr>`;
 			
 			keys.forEach( key => {
-				result += `<td>${table[row][key]}</td>`;
+				if (table[row][key] instanceof Array) {
+					result += `<td><table>${this.generateTable(table[row][key], settings ? settings[key] : settings).innerHTML}</table></td>`;
+				} else {
+					result += `<td>${table[row][key]}</td>`;
+				}
 			} );
 			
 			result += `</tr>`;
