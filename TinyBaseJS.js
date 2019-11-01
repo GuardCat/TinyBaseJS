@@ -182,7 +182,7 @@ class TinyDB {
 		} );
 	}
 
-	/** Генерирует HTML-таблицы на основе массива объектов
+	/** Генерирует HTML-таблицу на основе массива объектов
  	*	@param {Array} table массив объектов — таблица.
 	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
 	* 	@returns {Object} HTML таблица
@@ -218,6 +218,26 @@ class TinyDB {
 	
 		tableElement.insertAdjacentHTML("afterbegin", result);
 		return tableElement;
+	}
+
+	/** Генерирует div c HTML-таблицами на основе массива объектов. Одна строка --- одна таблица
+ 	*	@param {Array} table массив объектов — таблица.
+	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
+	* 	@returns {Object} HTML таблица
+ 	*/
+	generateTables(table) {
+		const container = document.createElement("div");
+		
+		container.insertAdjacentHTML( "afterbegin", table.reduce( (result, element) => {
+			result += `<table><tr>`;
+			for (let i in element) {
+				if ( !element.hasOwnProperty(i) ) continue;
+				result += `<td>${element[i]}</td>`;
+			}
+			return result;
+		}, "" ) );
+		
+		return container;
 	}
 
 	
