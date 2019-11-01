@@ -187,17 +187,20 @@ class TinyDB {
 	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
 	* 	@returns {Object} HTML таблица
  	*/
-	generateTable(table, settings) {
+	generateTable(table, settings, noCaptions = false) {
 		const keys = settings ? Object.keys(settings) : Object.keys(table[0]);
-		let result = `<tr>`, tableElement = document.createElement("table");
+		let result = "", tableElement = document.createElement("table");
 		
 		if (!keys || !keys.length) return tableElement;
 		
-		keys.forEach( key => {
-			result += `<th>${ (settings && settings[key]) ? settings[key] : key}</th>`;
-		} );		
-		
-		result += `</tr>`;
+		if (!noCaptions) {
+			result += `<tr>`;
+			keys.forEach( key => {
+				result += `<th>${ (settings && settings[key]) ? settings[key] : key}</th>`;
+			} );	
+			result += `</tr>`;
+		}
+
 		
 		for (let row in table) {
 			result += `<tr>`;
