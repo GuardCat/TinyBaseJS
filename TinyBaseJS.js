@@ -226,7 +226,7 @@ class TinyDB {
 	* 	@returns {Object} HTML таблица
  	*/
 	generateTables(table, fields) {
-		const container = document.createElement("div");
+		const container = document.createDocumentFragment( );
 		
 		container.insertAdjacentHTML( "afterbegin", table.reduce( (result, element) => {
 			result += `<table><tr>`;
