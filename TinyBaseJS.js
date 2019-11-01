@@ -225,11 +225,19 @@ class TinyDB {
 	* 	@param {Object} [settings]  ключи — имена поле, значения — надпись в заголовке
 	* 	@returns {Object} HTML таблица
  	*/
-	generateTables(table) {
+	generateTables(table, fields) {
 		const container = document.createElement("div");
 		
 		container.insertAdjacentHTML( "afterbegin", table.reduce( (result, element) => {
 			result += `<table><tr>`;
+			
+			if (fields instanceof Array) {
+				fields.forEach( i => {
+					result += `<td>${element[i]}</td>`;
+				} );
+				return result;
+			}
+			
 			for (let i in element) {
 				if ( !element.hasOwnProperty(i) ) continue;
 				result += `<td>${element[i]}</td>`;
