@@ -11,8 +11,8 @@
 
 class linkedBase {
 	constructor (base) {
-		const inspResult = this._inspection(base);
-		if (!inspResult.ok) return inspResult.error;
+		const inspected = this._inspect(base);
+		if (!inspected.ok) throw inspected.error;
 		this.base = this._compile(base);
 	}
 	
@@ -26,7 +26,9 @@ class linkedBase {
 	 * @returns	{Object} со статусом проверки (ok) и описанием
 	 * 					ошибки, если она есть.
 	 */
-	_inspection (base) {
+	_inspect (base) {
+		const knownTypes = ["int", "decimal", "date", "link", "text", "bool"];
+		
 		let result = {ok: false, error: null};
 		if (!base) {
 			result.error = new Error("There is nothing.");
@@ -38,7 +40,30 @@ class linkedBase {
 		
 		if (!!result.error) return result;
 		result.ok = true;
-		return result.
+		return result;
 	}
 }
 
+/* test base */
+let finBaseDecompiled = {
+	_structure: {
+		prefs:			{name: "text"},
+		accounts:		{name: "text", cred: "bool", cache: "bool", initSum: "decimal", exp: "date"},
+		types:			{name: "text", pref: ">prefs"},
+		projects:		{name: "text", pref: ">prefs"},
+		ben:				{name: "text", pref: ">prefs"},
+		currencies:	{name: "text", course: "decimal"},
+		transactions: {
+			account: ">accounts",
+			desc: "text",
+			date: "date", 
+			time: "time",
+			sum: "decimal",
+			type: ">types",
+			proj: ">projects",
+			currency: ">currencies"
+			
+		}
+		
+	}
+};
