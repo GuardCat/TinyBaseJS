@@ -9,17 +9,26 @@
  * @param {Object} base объект в формате linkedBase decompiled data
  */
 
-class linkedBase {
+class LinkedBase {
 	constructor (base) {
 		const inspected = this._inspect(base);
-		if (!inspected.ok) throw inspected.error;
+		if (!inspected.ok) return inspected.error;
 		this.base = this._compile(base);
 	}
 	
 	_compile (base) {
+		let compiledBase
 		return "compiled";
 	}
 	
+	_textToLink(link, value) {
+		if (value instanceof Array) return value.map( (val) => this._textToLink(link, val) );
+		const 
+		  type = link.slice(1,2),
+		  table = this[link.slice(2)]
+		 ;
+		 return table[link];
+	}
 	/**
 	 * @desc		метод проверяет объект на соответствие
 	 * 					формату linkedBase decompiled data.
@@ -47,23 +56,22 @@ class linkedBase {
 /* test base */
 let finBaseDecompiled = {
 	_structure: {
-		prefs:			{name: "text"},
-		accounts:		{name: "text", cred: "bool", cache: "bool", initSum: "decimal", exp: "date"},
-		types:			{name: "text", pref: ">prefs"},
-		projects:		{name: "text", pref: ">prefs"},
-		ben:				{name: "text", pref: ">prefs"},
-		currencies:	{name: "text", course: "decimal"},
+		prefixes:			{name: "text"},
+		accounts:			{name: "text", cred: "bool", cache: "bool", limit: "decimal", exp: "date"},
+		types:				{name: "text", pref: ">>prefs"},
+		projects:			{name: "text", pref: ">>prefs"},
+		ben:					{name: "text", pref: ">>prefs"},
+		currencies:		{name: "text", course: "decimal"},
 		transactions: {
-			account: ">accounts",
+			account: ">>accounts",
 			desc: "text",
 			date: "date", 
 			time: "time",
 			sum: "decimal",
-			type: ">types",
-			proj: ">projects",
-			currency: ">currencies"
-			
+			type: ">>types",
+			proj: ">>projects",
+			currency: ">>currencies"
 		}
-		
 	}
+	
 };
